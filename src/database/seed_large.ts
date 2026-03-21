@@ -74,13 +74,43 @@ const seed = async () => {
 
     // ══ 1. Users الأساسيين ══
     const ownerPass = await bcrypt.hash('owner123', 12);
-    await User.findOrCreate({ where: { username: 'owner' }, defaults: { firstName: 'محمد', lastName: 'الموزع', phone: '0991234567', username: 'owner', password: ownerPass, role: UserRole.OWNER } });
+    await User.findOrCreate({ 
+      where: { phone: '0991234567' }, 
+      defaults: { 
+        firstName: 'محمد', 
+        lastName: 'الموزع', 
+        phone: '0991234567', 
+        password: ownerPass, 
+        role: UserRole.OWNER 
+      } 
+    });
 
     const adminPass = await bcrypt.hash('admin123', 12);
-    await User.findOrCreate({ where: { username: 'admin' }, defaults: { firstName: 'أحمد', lastName: 'الأدمن', phone: '0992345678', username: 'admin', password: adminPass, role: UserRole.ADMIN } });
+    await User.findOrCreate({ 
+      where: { phone: '0992345678' }, 
+      defaults: { 
+        firstName: 'أحمد', 
+        lastName: 'الأدمن', 
+        phone: '0992345678', 
+        password: adminPass, 
+        role: UserRole.ADMIN 
+      } 
+    });
 
     const pharmPass = await bcrypt.hash('pharm123', 12);
-    await User.findOrCreate({ where: { phone: '0993456789' }, defaults: { firstName: 'أسامة', lastName: 'فارون', phone: '0993456789', email: 'osama@example.com', password: pharmPass, role: UserRole.PHARMACIST, pharmacyName: 'صيدلية الشفاء', pharmacyLocation: 'دمشق - المزة' } });
+    await User.findOrCreate({ 
+      where: { phone: '0993456789' }, 
+      defaults: { 
+        firstName: 'أسامة', 
+        lastName: 'فارون', 
+        phone: '0993456789', 
+        email: 'osama@example.com', 
+        password: pharmPass, 
+        role: UserRole.PHARMACIST, 
+        pharmacyName: 'صيدلية الشفاء', 
+        pharmacyLocation: 'دمشق - المزة' 
+      } 
+    });
 
     // ══ 2. 500 صيدلاني ══
     console.log(`\n⏳ توليد ${TOTAL_PHARMACISTS} صيدلاني...`);
@@ -100,8 +130,11 @@ const seed = async () => {
         const [u, wasCreated] = await User.findOrCreate({
           where: { phone },
           defaults: {
-            firstName: fn, lastName: ln, phone,
-            password: hashedPharm, role: UserRole.PHARMACIST,
+            firstName: fn, 
+            lastName: ln, 
+            phone,
+            password: hashedPharm, 
+            role: UserRole.PHARMACIST,
             pharmacyName: `${pPrefix} ${pSuffix}`,
             pharmacyLocation: loc,
           }
@@ -120,7 +153,10 @@ const seed = async () => {
     // ══ 3. Warehouses ══
     const warehouses: any[] = [];
     for (const wd of WAREHOUSES_DATA) {
-      const [w] = await Warehouse.findOrCreate({ where: { name: wd.name }, defaults: { ...wd, isActive: true } });
+      const [w] = await Warehouse.findOrCreate({ 
+        where: { name: wd.name }, 
+        defaults: { ...wd, isActive: true } 
+      });
       warehouses.push(w);
     }
     console.log(`✅ ${warehouses.length} مستودع`);
@@ -130,7 +166,10 @@ const seed = async () => {
     for (const w of warehouses) {
       catsByWarehouse[w.id] = [];
       for (const catName of ALL_CATEGORIES) {
-        const [c] = await Category.findOrCreate({ where: { name: catName, warehouseId: w.id }, defaults: { name: catName, warehouseId: w.id, isActive: true } });
+        const [c] = await Category.findOrCreate({ 
+          where: { name: catName, warehouseId: w.id }, 
+          defaults: { name: catName, warehouseId: w.id, isActive: true } 
+        });
         catsByWarehouse[w.id].push(c);
       }
     }
@@ -159,8 +198,14 @@ const seed = async () => {
             defaults: {
               name:           drugName.split(' ')[0] + (i > 0 ? ` ${i}` : ''),
               scientificName: drugName,
-              company, categoryId: cat.id, warehouseId: w.id,
-              price, stock, unit, barcode, isActive: true,
+              company, 
+              categoryId: cat.id, 
+              warehouseId: w.id,
+              price, 
+              stock, 
+              unit, 
+              barcode, 
+              isActive: true,
             }
           });
           if (wasCreated) wCreated++;
@@ -179,7 +224,10 @@ const seed = async () => {
 
     // ══ 6. 300 طلب ══
     console.log('\n⏳ توليد الطلبات...');
-    const allProducts: any[] = await Product.findAll({ where: { stock: { [require('sequelize').Op.gt]: 0 } }, limit: 500 });
+    const allProducts: any[] = await Product.findAll({ 
+      where: { stock: { [require('sequelize').Op.gt]: 0 } }, 
+      limit: 500 
+    });
     const statuses = [OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.DELIVERING, OrderStatus.DELIVERED, OrderStatus.DELIVERED];
     let orderCount = 0;
 
@@ -211,7 +259,8 @@ const seed = async () => {
           status: pick(statuses),
           totalAmount: 0,
           notes: rand(0, 4) === 0 ? pick(['يرجى التوصيل صباحاً', 'عاجل', 'التوصيل بعد الظهر', 'يرجى الاتصال قبل التوصيل']) : null,
-          createdAt, updatedAt: createdAt,
+          createdAt, 
+          updatedAt: createdAt,
         });
 
         let total = 0;
@@ -219,7 +268,13 @@ const seed = async () => {
           const qty = rand(1, 8);
           const price = parseFloat(prod.price);
           total += price * qty;
-          await OrderItem.create({ orderId: order.id, productId: prod.id, quantity: qty, price, productName: prod.name });
+          await OrderItem.create({ 
+            orderId: order.id, 
+            productId: prod.id, 
+            quantity: qty, 
+            price, 
+            productName: prod.name 
+          });
         }
         await order.update({ totalAmount: total });
         orderCount++;
@@ -229,11 +284,44 @@ const seed = async () => {
 
     // ══ 7. Announcements ══
     for (const ann of [
-      { title: 'عرض فاتورة 200,000 ل.س', subtitle: 'احصل على هدية مجانية', description: 'عند الطلب بقيمة 200,000 ل.س أو أكثر تحصل على هدية مجانية', bgColor: '#0f172a', badgeText: '🎁 عرض خاص', badgeColor: '#f59e0b', isActive: true, sortOrder: 1, minOrderAmount: 200000 },
-      { title: 'منتجات جديدة وصلت!', subtitle: 'تشكيلة جديدة من الأدوية', description: 'تم إضافة آلاف المنتجات الجديدة إلى مستودعاتنا', bgColor: '#1e3a5f', badgeText: '✨ جديد', badgeColor: '#22c55e', isActive: true, sortOrder: 2, minOrderAmount: null },
-      { title: 'خدمة التوصيل السريع', subtitle: 'التوصيل خلال 24 ساعة', description: 'نضمن وصول طلبك خلال 24 ساعة لجميع المناطق', bgColor: '#1a1a2e', badgeText: '🚚 توصيل سريع', badgeColor: '#3b82f6', isActive: true, sortOrder: 3, minOrderAmount: null },
+      { 
+        title: 'عرض فاتورة 200,000 ل.س', 
+        subtitle: 'احصل على هدية مجانية', 
+        description: 'عند الطلب بقيمة 200,000 ل.س أو أكثر تحصل على هدية مجانية', 
+        bgColor: '#0f172a', 
+        badgeText: '🎁 عرض خاص', 
+        badgeColor: '#f59e0b', 
+        isActive: true, 
+        sortOrder: 1, 
+        minOrderAmount: 200000 
+      },
+      { 
+        title: 'منتجات جديدة وصلت!', 
+        subtitle: 'تشكيلة جديدة من الأدوية', 
+        description: 'تم إضافة آلاف المنتجات الجديدة إلى مستودعاتنا', 
+        bgColor: '#1e3a5f', 
+        badgeText: '✨ جديد', 
+        badgeColor: '#22c55e', 
+        isActive: true, 
+        sortOrder: 2, 
+        minOrderAmount: null 
+      },
+      { 
+        title: 'خدمة التوصيل السريع', 
+        subtitle: 'التوصيل خلال 24 ساعة', 
+        description: 'نضمن وصول طلبك خلال 24 ساعة لجميع المناطق', 
+        bgColor: '#1a1a2e', 
+        badgeText: '🚚 توصيل سريع', 
+        badgeColor: '#3b82f6', 
+        isActive: true, 
+        sortOrder: 3, 
+        minOrderAmount: null 
+      },
     ]) {
-      await Announcement.findOrCreate({ where: { title: ann.title }, defaults: ann });
+      await Announcement.findOrCreate({ 
+        where: { title: ann.title }, 
+        defaults: ann 
+      });
     }
 
     console.log('\n🎉 ═══════════════════════════════');
