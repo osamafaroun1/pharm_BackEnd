@@ -3,7 +3,6 @@ import * as auth from '../controllers/authController';
 import * as warehouse from '../controllers/warehouseController';
 import * as product from '../controllers/productController';
 import * as order from '../controllers/orderController';
-import * as notif from '../controllers/notificationController';
 import * as owner from '../controllers/ownerController';
 import { authenticate, authorize } from '../middleware/auth';
 
@@ -48,11 +47,6 @@ router.post('/orders', authenticate, authorize('pharmacist'), order.createOrder)
 router.get('/orders', authenticate, order.getOrders);
 router.put('/orders/:id/status', authenticate, authorize('admin','owner'), order.updateOrderStatus);
 
-// Notifications
-router.get('/notifications', authenticate, notif.getNotifications);
-router.put('/notifications/read', authenticate, notif.markAsRead);
-router.get('/notifications/unread-count', authenticate, notif.getUnreadCount);
-
 // Owner
 router.get('/owner/admins', authenticate, authorize('owner'), owner.getAdmins);
 router.post('/owner/admins', authenticate, authorize('owner'), owner.createAdmin);
@@ -67,11 +61,6 @@ router.get('/favorites',                    authenticate, features.getFavorites)
 router.get('/favorites/ids',                authenticate, features.getFavoriteIds);
 router.post('/favorites/:productId',        authenticate, features.addFavorite);
 router.delete('/favorites/:productId',      authenticate, features.removeFavorite);
-
-// Stock Alerts
-router.get('/stock-alerts',                 authenticate, features.getMyAlerts);
-router.post('/stock-alerts/:productId',     authenticate, features.addStockAlert);
-router.delete('/stock-alerts/:productId',   authenticate, features.removeStockAlert);
 
 // Stats
 router.get('/my-stats',                     authenticate, features.getMyStats);

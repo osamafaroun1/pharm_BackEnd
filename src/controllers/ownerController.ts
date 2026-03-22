@@ -3,7 +3,6 @@ import bcrypt from 'bcryptjs';
 import { User, DailyIncome, Order } from '../models/index';
 import { UserRole } from '../models/User';
 import { Op } from 'sequelize';
-import sequelize from '../config/database';
 
 export const getAdmins = async (req: Request, res: Response) => {
   try {

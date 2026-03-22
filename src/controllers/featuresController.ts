@@ -1,8 +1,6 @@
-import { Request, Response } from 'express';
-import { Favorite, StockAlert, Product, User, Notification } from '../models/index';
+import { Response } from 'express';
+import { Favorite, Product, User } from '../models/index';
 import { Category, Warehouse } from '../models/index';
-import { UserRole } from '../models/User';
-import { Op } from 'sequelize';
 
 const productInclude = [
   { model: Category,  as: 'category'  },
@@ -42,55 +40,6 @@ export const getFavoriteIds = async (req: any, res: Response) => {
   } catch (e: any) { return res.status(500).json({ message: e.message }); }
 };
 
-/* ══ STOCK ALERTS ══ */
-export const addStockAlert = async (req: any, res: Response) => {
-  try {
-    const product = await Product.findByPk(req.params.productId);
-    if (!product) return res.status(404).json({ message: 'المنتج غير موجود' });
-    if ((product as any).stock > 0) return res.status(400).json({ message: 'المنتج متوفر الآن' });
-    await StockAlert.findOrCreate({ where: { userId: req.user.id, productId: req.params.productId }, defaults: { notified: false } });
-    return res.json({ message: 'سيتم إشعارك عند توفر المنتج' });
-  } catch (e: any) { return res.status(500).json({ message: e.message }); }
-};
-
-export const removeStockAlert = async (req: any, res: Response) => {
-  try {
-    await StockAlert.destroy({ where: { userId: req.user.id, productId: req.params.productId } });
-    return res.json({ message: 'تم إلغاء الإشعار' });
-  } catch (e: any) { return res.status(500).json({ message: e.message }); }
-};
-
-export const getMyAlerts = async (req: any, res: Response) => {
-  try {
-    const alerts = await StockAlert.findAll({
-      where: { userId: req.user.id },
-      attributes: ['productId'],
-    });
-    return res.json(alerts.map((a: any) => a.productId));
-  } catch (e: any) { return res.status(500).json({ message: e.message }); }
-};
-
-// يُستدعى عند تحديث المخزون — يرسل إشعار للصيادلة المنتظرين
-export const triggerStockNotifications = async (productId: number) => {
-  try {
-    const alerts = await StockAlert.findAll({
-      where: { productId, notified: false },
-      include: [{ model: User, as: 'user' }],
-    });
-    const product = await Product.findByPk(productId);
-    if (!product || (product as any).stock <= 0) return;
-
-    for (const alert of alerts as any[]) {
-      const notif = await Notification.create({
-        userId: alert.userId,
-        title: '✅ المنتج أصبح متوفراً',
-        message: `${(product as any).name} أصبح متوفراً الآن في المخزون. اطلبه قبل نفاده!`,
-        relatedId: productId,
-      });
-      await alert.update({ notified: true });
-    }
-  } catch {}
-};
 
 /* ══ STATS ══ */
 export const getMyStats = async (req: any, res: Response) => {

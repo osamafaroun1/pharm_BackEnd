@@ -4,7 +4,6 @@ import Category from './Category';
 import Product from './Product';
 import Order from './Order';
 import OrderItem from './OrderItem';
-import Notification from './Notification';
 import DailyIncome from './DailyIncome';
 import Announcement from './Announcement';
 
@@ -28,14 +27,8 @@ Order.hasMany(OrderItem, { foreignKey: 'orderId', as: 'items' });
 OrderItem.belongsTo(Order, { foreignKey: 'orderId', as: 'order' });
 OrderItem.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
 
-User.hasMany(Notification, { foreignKey: 'userId', as: 'notifications' });
-Notification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
-
-export { User, Warehouse, Category, Product, Order, OrderItem, Notification, DailyIncome, Announcement, Favorite, StockAlert };
+export { User, Warehouse, Category, Product, Order, OrderItem, DailyIncome, Announcement, Favorite };
 import Favorite   from './Favorite';
-import StockAlert from './StockAlert';
 
 Favorite.belongsTo(Product,  { foreignKey: 'productId', as: 'product' });
 Favorite.belongsTo(User,     { foreignKey: 'userId',    as: 'user' });
-StockAlert.belongsTo(Product,{ foreignKey: 'productId', as: 'product' });
-StockAlert.belongsTo(User,   { foreignKey: 'userId',    as: 'user' });

@@ -10,7 +10,6 @@ class Product extends Model {
   public categoryId!: number;
   public warehouseId!: number;
   public price!: number;
-  public stock!: number;
   public unit!: string;
   public description!: string | null;
   public imageUrl!: string | null;
@@ -27,7 +26,6 @@ Product.init(
     categoryId: { type: DataTypes.INTEGER, allowNull: false },
     warehouseId: { type: DataTypes.INTEGER, allowNull: false },
     price: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
-    stock: { type: DataTypes.INTEGER, defaultValue: 0 },
     unit: { type: DataTypes.STRING(50), defaultValue: 'علبة' },
     description: { type: DataTypes.TEXT, allowNull: true },
     imageUrl: { type: DataTypes.TEXT('long'), allowNull: true },
